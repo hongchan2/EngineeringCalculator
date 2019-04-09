@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Calculator</title>
+
+    <link rel="stylesheet" href="main.css">
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js' type='text/javascript'></script>
+    <script src='math.js' type='text/javascript'></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        var copied;
+        var parser = math.parser();
+
+        var displayValue = '';
+        $('#userInput').text(displayValue);
+
+
+        $('.key, .dropKey, .operationKey').each(function(index, key){
+            $(this).click(function(e){
+                var clickedText = $(this).text();
+
+                /* Change character */
+                switch(clickedText){
+                  case '×':
+                    clickedText = '*';
+                    break;
+                  case '÷':
+                    clickedText = '/';
+                    break;
+                  case 'π':
+                    clickedText = 'pi';
+                    break;
+                  case 'x^2':
+                    clickedText = '^2';
+                    break;
+                }
+
+                if(clickedText == 'EV')
+                {
+                    try
+                    {
+                      if(displayValue != '')
+                      {
+                        displayValue = parser.eval(displayValue).toString();
+                      }
+                      else
+                      {
+                        displayValue = '0';
+                      }
+                      var tokens = displayValue.split(' ');
+                      if(tokens[0] == 'function')
+                      {
+                        displayValue = tokens[0];
+                      }
+                      $('#status').text("Result");
+                      $('#result').text(displayValue);
+                      displayValue = '';
+                    }
+                    catch (e)
+                    {
+                        displayValue = '';
+                        if(displayValue != 'function')
+                        {
+                            $('#result').text(e);
+                        }
+                    }
+                }
+                else
+                {
+                    if(clickedText == 'AC')
+                    {
+                        displayValue = '';
+                        $('#userInput').text(displayValue);
+                        $('#result').text('');
+                        $('#status').text("Clear");
+                    }
+                    else if(clickedText == '←'){
+                      displayValue = displayValue.substring(0, displayValue.length - 1);
+                      $('#userInput').text(displayValue);
+                      $('#status').text("Erase");
+                    }
+                    else
+                    {
+                        displayValue += clickedText;
+                        $('#userInput').text(displayValue);
+                        $('#result').text('');
+                        $('#status').text("Input");
+                    }
+                }
+
+                e.preventDefault()
+            })
+        })
+
+        /* Install Dropdown Event Handler */
+        $('.selectBox').click(function(){
+          $('#status').text("");
+          var $dropDown = $(this);
+          var toggle = $dropDown.children().hasClass('show');
+          if(toggle == true){
+            $dropDown.children().removeClass('show');
+            $dropDown.removeClass('selected');
+            $dropDown.children().slideUp(400);
+          }else{
+            $dropDown.children().addClass('show');
+            $dropDown.addClass('selected');
+            $dropDown.children().slideDown(400);
+          }
+        });
+
+        /* Install Copy, Paste Event Handler */
+        $('.addKey').click(function(e){
+          var key = $(this).text();
+          if(key == "Copy"){
+            var text = $('#userInput').get(0);
+            var selection = window.getSelection();
+            var range = document.createRange();
+            
+            range.selectNodeContents(text);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            document.execCommand('Copy');
+            copied = $('#userInput').text();
+            $('#status').text("Copy");
+          }
+          else if(key == "Paste"){
+            displayValue += copied;
+            $('#userInput').text(displayValue);
+            $('#status').text("Paste");
+          }
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <div id="calculator">
+      <div id="userInput"></div>
+      <div id="status"></div>
+      <div id="result"></div>
+      <table id="operation">
+        <tr>
+          <td class="operationKey">cross</td>
+          <td class="operationKey">naejeok</td>
+          <td class="operationKey">inv</td>
+          <td class="operationKey">det</td>
+        </tr>
+        <tr>
+          <td class="operationKey">exp</td>
+          <td class="operationKey">sqrt</td>
+          <td class="operationKey">x^2</td>
+          <td class="operationKey">x^y</td>
+        </tr>
+        <tr>
+          <td class="operationKey">n!</td>
+          <td class="operationKey">i</td>
+          <td class="operationKey">e</td>
+          <td class="operationKey">π</td>
+        </tr>
+      </table>
+      <div id="box">
+        <table>
+          <tr>
+            <td class="selectBox">x, y, z
+              <div class="dropDown">
+                <span class="dropKey">x</span>
+                <span class="dropKey">y</span>
+                <span class="dropKey">z</span>
+              </div>
+            </td>
+            <td class="selectBox">f(x)
+                <div class="dropDown">
+                    <span class="dropKey">f(x)</span>
+                    <span class="dropKey">g(x)</span>
+                </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="selectBox">( ) [ ]
+                <div class="dropDown">
+                    <span class="dropKey">(</span>
+                    <span class="dropKey">)</span>
+                    <span class="dropKey">[</span>
+                    <span class="dropKey">]</span>
+                </div>
+            </td>
+            <td class="selectBox hangul">로그함수
+                <div class="dropDown">
+                    <span class="dropKey">log</span>
+                    <span class="dropKey">ln</span>
+                </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="selectBox hangul">삼각함수
+                <div class="dropDown">
+                    <span class="dropKey">sin</span>
+                    <span class="dropKey">cos</span>
+                    <span class="dropKey">tan</span>
+                </div>
+            </td>
+            <td class="selectBox hangul">비교연산
+                <div class="dropDown">
+                  <span class="dropKey">==</span>
+                  <span class="dropKey">!=</span>
+                  <span class="dropKey">></span>
+                  <span class="dropKey"><</span>
+                  <span class="dropKey">>=</span>
+                  <span class="dropKey"><=</span>
+                </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <table id="additional">
+        <tr>
+          <td class="addKey">Help</td>
+          <td id="history" class="addKey">History</td>
+          <td class="addKey">Copy</td>
+          <td class="addKey">Paste</td>
+         </tr>
+      </table>
+      <div id="number">
+        <table>
+          <tr>
+            <td class="key">7</td>
+            <td class="key">8</td>
+            <td class="key">9</td>
+            <td class="key importantkey">←</td>
+            <td class="key importantkey">AC</td>
+          </tr>
+          <tr>
+            <td class="key">4</td>
+            <td class="key">5</td>
+            <td class="key">6</td>
+            <td class="key semimportantkey">×</td>
+            <td class="key semimportantkey">÷</td>
+          </tr>
+          <tr>
+            <td class="key">1</td>
+            <td class="key">2</td>
+            <td class="key">3</td>
+            <td class="key semimportantkey">+</td>
+            <td class="key semimportantkey">-</td>
+          </tr>
+          <tr>
+            <td class="key smalltr">.</td>
+            <td class="key smalltr">,</td>
+            <td class="key">0</td>
+            <td class="key">%</td>
+            <td class="key semimportantkey">=</td>
+            <td class="key importantkey">EV</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

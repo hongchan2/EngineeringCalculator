@@ -1,0 +1,211 @@
+#calculator{
+  width:300px;
+  height:534px;
+  border: 1px solid black;
+  border-radius:3px;
+  background-color: #242424;
+}
+
+#userInput{
+  margin:5px;
+  height:90px;
+  border: 0.5px solid gray;
+  background-color: #484848;
+  color:white;
+  font-size:22px;
+  border-radius:10px;
+}
+
+#status{
+  width:50px;
+  margin:5px 0px 0px 5px;
+  height:26px;
+  padding-top:4px;
+  border: 0.5px solid gray;
+  background-color: #484848;
+  text-align:center;
+  color:white;
+  font-size:15px;
+  font-weight: bold;
+  border-radius:10px;
+  position: absolute;
+
+  top:110px;
+}
+
+#result{
+  width:233px;
+  margin:5px 5px 0px 0px;
+  height:30px;
+  border: 0.5px solid gray;
+  background-color: #484848;
+  text-align:right;
+  color:white;
+  font-size:23px;
+  font-weight: bold;
+  border-radius:10px;
+  float:right;
+}
+
+#box{
+  width:95px;
+  position:relative;
+  float:left;
+  margin-top:5px;
+  margin-left:5px;
+}
+
+#operation{
+  width:190px;
+  margin:5px 5px 0px 5px;
+  float:right;
+  position:relative;
+}
+
+#number{
+  margin:5px;
+  height:185px;
+}
+
+.key{
+  width:55px;
+  height:26px;
+  margin:0px 2px 2px 0px;
+  display:inline-block;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  padding:10px 0px 10px 0px;
+  font-size:20px;
+  background-color:#909090;
+  color:white;
+  text-align: center;
+}
+
+.key:hover{
+  background-color:#6C6C6C;
+}
+
+.importantkey:hover{
+  background-color: rgb(241, 179, 113);
+}
+
+.semimportantkey:hover{
+  background-color: rgb(241, 179, 113);
+}
+
+.operationKey{
+  width:44px;
+  height:22px;
+  padding:10px 0px 10px 0px;
+  margin:0px 2px 2px 0px;
+  font-size:15px;
+  background-color:#6C6C6C;
+  display:inline-block;
+  color:white;
+  cursor:pointer;
+  text-align: center;
+}
+
+.operationKey:hover{
+  background-color:#909090;
+}
+
+.importantkey{
+  background-color: #FF8224;
+}
+
+.semimportantkey{
+  background-color: #FFA648;
+}
+
+#number table{
+  width:290px;
+}
+
+.smalltr{
+  width:26.5px;
+}
+
+.selectBox{
+  width:42px;
+  height:22px;
+  padding:10px 0px 10px 0px;
+  margin:0px 3px 2px 0px;
+  font-size:15px;
+  display:inline-block;
+  color:white;
+  cursor:pointer;
+  text-align: center;
+  background-color: rgb(206, 136, 62);
+}
+
+.selected{
+  background-color: rgb(168, 108, 43);
+}
+
+.selectBox:hover{
+  background-color: rgb(168, 108, 43);
+}
+
+.hangul{
+  font-size:11px;
+  padding-top:13px;
+  padding-bottom:7px;
+}
+
+.dropDown{
+  display:none;
+  position:absolute;
+  width:93px;
+  overflow:auto;
+  z-index:1;
+  text-align:center;
+  right:0px;
+  border-bottom:1px solid black;
+  background-color:lightgray;
+  color:black;
+}
+
+.dropDown span{
+  display:block;
+  border-bottom:1px solid black;
+  font-size:15px;
+  height:25px;
+  padding:8px 0px 0px 0px;
+}
+
+.dropDown span:hover{
+  background-color:gray;
+  color:white;
+  font-weight: bold;
+}
+
+.show{
+  background-color:lightgray;
+  color:black;
+}
+
+#additional{
+  height:30px;
+  float:right;
+  padding:3px 5px 5px 0px;
+}
+
+.addKey{
+  width:50px;
+  height:15px;
+  padding:10px 0px 10px 0px;
+  margin:0px 2px 0px 0px;
+  font-size:15px;
+  background-color: rgb(168, 108, 43);
+  display:inline-block;
+  color:white;
+  cursor:pointer;
+  text-align: center;
+  border-radius:15px;
+}
+
+.addKey:hover{
+  background-color: rgb(206, 136, 62);
+}
