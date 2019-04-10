@@ -209,3 +209,9 @@
 .addKey:hover{
   background-color: rgb(206, 136, 62);
 }
+
+#historyPrint span{
+  font-size: 18px;
+  margin: 0px 7px 7px 0px; 
+  border: 1px solid black;
+}

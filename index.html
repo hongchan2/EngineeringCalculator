@@ -3,17 +3,25 @@
   <head>
     <title>Calculator</title>
 
+    <link type="text/css" rel="stylesheet" href="./popmodal/popModal.css">
     <link rel="stylesheet" href="main.css">
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js' type='text/javascript'></script>
+    <script src="./popmodal/popModal.js"></script>
     <script src='math.js' type='text/javascript'></script>
-    <script type="text/javascript">
-    $(document).ready(function(){
-        var copied;
+    <script>
+    //$(document).ready(function(){
+    $(function(){
+        var copied; // Copy and Paste
+        var susic = []; // History
+        var result = []; // History
+        var historyCnt = 0; // History
+        var temp; // History
+        var rightSusic = false; // History
+
         var parser = math.parser();
-
         var displayValue = '';
-        $('#userInput').text(displayValue);
 
+        $('#userInput').text(displayValue);
 
         $('.key, .dropKey, .operationKey').each(function(index, key){
             $(this).click(function(e){
@@ -35,8 +43,11 @@
                     break;
                 }
 
+                /* Evaluate */
                 if(clickedText == 'EV')
                 {
+                  rightSusic = true;
+                    temp = displayValue;
                     try
                     {
                       if(displayValue != '')
@@ -46,15 +57,32 @@
                       else
                       {
                         displayValue = '0';
+                        rightSusic = false;
                       }
                       var tokens = displayValue.split(' ');
+
+                      /* Function */
                       if(tokens[0] == 'function')
                       {
                         displayValue = tokens[0];
+                        rightSusic = false;
                       }
+                      /* ERROR */
+                      else if(tokens[0] == 'error'){
+                        rightSusic = false;
+                      }
+
+                      /* Push to Susic, Result Array */
+                      if(rightSusic){
+                        susic.push(temp);
+                        result.push(displayValue);
+                      }
+
                       $('#status').text("Result");
                       $('#result').text(displayValue);
                       displayValue = '';
+                      temp = '';
+                      rightSusic = false;
                     }
                     catch (e)
                     {
@@ -67,6 +95,7 @@
                 }
                 else
                 {
+                    /* Clear */
                     if(clickedText == 'AC')
                     {
                         displayValue = '';
@@ -74,11 +103,13 @@
                         $('#result').text('');
                         $('#status').text("Clear");
                     }
+                    /* Backspace */
                     else if(clickedText == '←'){
                       displayValue = displayValue.substring(0, displayValue.length - 1);
                       $('#userInput').text(displayValue);
                       $('#status').text("Erase");
                     }
+                    /* Input */
                     else
                     {
                         displayValue += clickedText;
@@ -116,23 +147,75 @@
             var selection = window.getSelection();
             var range = document.createRange();
             
+            /* Copy to Clip Board */
             range.selectNodeContents(text);
             selection.removeAllRanges();
             selection.addRange(range);
             document.execCommand('Copy');
+
+            /* Copy to Local Variable */
             copied = $('#userInput').text();
             $('#status').text("Copy");
           }
           else if(key == "Paste"){
+            /* Append Paste */
             displayValue += copied;
             $('#userInput').text(displayValue);
             $('#status').text("Paste");
           }
-      });
+        });
+
+        /* Install History Event Handler */
+        $('#history').click(function(){
+
+            /* Add New Susic And Result */
+            for(var i = 0; i < susic.length; i++){
+              var content1 = '<div><span class="susic">' + susic[i] + '</span>';
+              var content2 = '<span class="result">' + result[i] + '</span></div>';
+
+              var $div = $(content1 + content2);
+              $('#historyPrint').append($div);
+            }
+
+            /* Clear Array */
+            susic.splice(0, susic.length);
+            result.splice(0, result.length);
+
+            $('#additional').popModal({
+              html : $('#historyContent').html()
+            });
+        });
+
+        /* Install Help Event Handler */
+        $('#help').click(function(){
+          
+        });
     });
     </script>
   </head>
   <body>
+
+    <div id="historyContent" style="display:none">
+        <span>수식</span>
+        <span>결과</span>
+        <p></p>
+        <div id="historyPrint">
+          <div>
+              <span>
+                dd
+              </span>
+              <span>
+                ewruls
+              </span>
+            </div>
+        </div>
+
+        <div class="popModal_footer">
+            <button type="button" data-popModalBut="ok">ok</button>
+            <button type="button" data-popModalBut="cancel">cancel</button>
+        </div>
+    </div>
+
     <div id="calculator">
       <div id="userInput"></div>
       <div id="status"></div>
@@ -140,9 +223,9 @@
       <table id="operation">
         <tr>
           <td class="operationKey">cross</td>
-          <td class="operationKey">naejeok</td>
-          <td class="operationKey">inv</td>
+          <td class="operationKey">dot</td>
           <td class="operationKey">det</td>
+          <td class="operationKey">inv</td>
         </tr>
         <tr>
           <td class="operationKey">exp</td>
@@ -213,7 +296,7 @@
       </div>
       <table id="additional">
         <tr>
-          <td class="addKey">Help</td>
+          <td id="help" class="addKey">Help</td>
           <td id="history" class="addKey">History</td>
           <td class="addKey">Copy</td>
           <td class="addKey">Paste</td>
