@@ -17,6 +17,9 @@
         var historyCnt = 0; // History
         var temp; // History
         var rightSusic = false; // History
+        var help = false; // Help
+
+        var $resultHint = $('<div class="hintHide"> 입력된 수식의 결과를 표시합니다.</div>');
 
         var parser = math.parser();
         var displayValue = '';
@@ -167,11 +170,10 @@
 
         /* Install History Event Handler */
         $('#history').click(function(){
-
             /* Add New Susic And Result */
             for(var i = 0; i < susic.length; i++){
-              var content1 = '<div><span class="susic">' + susic[i] + '</span>';
-              var content2 = '<span class="result">' + result[i] + '</span></div>';
+              var content1 = '<tr><td class="susic">' +susic[i] + '</td>';
+              var content2 = '<td class="result">' + result[i] + '</td></tr>';
 
               var $div = $(content1 + content2);
               $('#historyPrint').append($div);
@@ -181,6 +183,7 @@
             susic.splice(0, susic.length);
             result.splice(0, result.length);
 
+            /* Show Popup Screen */
             $('#additional').popModal({
               html : $('#historyContent').html()
             });
@@ -188,26 +191,39 @@
 
         /* Install Help Event Handler */
         $('#help').click(function(){
-          
+          /* Original Mode (Hide ToolTip) */
+          if(help){
+            help = false;
+            $(this).removeClass('helpSelected');
+
+            $('.hintModal > div').removeClass('hintModal_container');
+            $('.hintModal > div').addClass('hintHide');
+            $('#status').text("");
+          }
+          /* Explain Mode (Show ToolTip) */
+          else{
+            help = true;
+            // add result, status tag
+
+            $(this).addClass('helpSelected');
+
+            $('.hintModal > div').removeClass('hintHide');
+            $('.hintModal > div').addClass('hintModal_container');
+            $('#status').text("Help");
+          }
         });
     });
     </script>
   </head>
   <body>
-
     <div id="historyContent" style="display:none">
-        <span>수식</span>
-        <span>결과</span>
-        <p></p>
-        <div id="historyPrint">
-          <div>
-              <span>
-                dd
-              </span>
-              <span>
-                ewruls
-              </span>
-            </div>
+        <div>
+          <table id="historyPrint">
+            <tr>
+              <td class="susic title">수식</td>
+              <td class="result title">결과</td>
+            </tr>
+          </table>
         </div>
 
         <div class="popModal_footer">
@@ -217,27 +233,89 @@
     </div>
 
     <div id="calculator">
-      <div id="userInput"></div>
-      <div id="status"></div>
-      <div id="result"></div>
+      <div id="userInput" class="hintModal">
+          <div class="hintHide">
+              사용자의 입력이 표시됩니다.
+          </div>
+      </div>
+      <div id="status" class="hintModal">
+          <div class="hintHide">
+              현재 계산기 상태를 표시합니다.<br>
+              Input - 사용자 입력<br>
+              Reuslt - 수식의 결과 출력<br>
+          </div>
+      </div>
+      <div id="result" class="hintModal">
+          <div class="hintHide">
+              입력된 수식의 결과를 표시합니다.
+          </div>
+      </div>
       <table id="operation">
         <tr>
-          <td class="operationKey">cross</td>
-          <td class="operationKey">dot</td>
-          <td class="operationKey">det</td>
-          <td class="operationKey">inv</td>
+          <td class="operationKey hintModal">cross
+              <div class="hintHide">
+                  @외적 설명
+              </div>
+          </td>
+          <td class="operationKey hintModal">dot
+              <div class="hintHide">
+                  @내적 설명
+              </div>
+          </td>
+          <td class="operationKey hintModal">det
+              <div class="hintHide">
+                  @행렬식 설명
+              </div>
+          </td>
+          <td class="operationKey hintModal">inv
+              <div class="hintHide">
+                  @행렬식 설명
+              </div>
+          </td>
         </tr>
         <tr>
-          <td class="operationKey">exp</td>
-          <td class="operationKey">sqrt</td>
-          <td class="operationKey">x^2</td>
-          <td class="operationKey">x^y</td>
+          <td class="operationKey hintModal">exp
+              <div class="hintHide">
+                  @지수함수 설명
+              </div>
+          </td>
+          <td class="operationKey hintModal">sqrt
+              <div class="hintHide">
+                  표시된 값의 제곱근을 계산합니다.
+              </div>
+          </td>
+          <td class="operationKey hintModal">x^2
+              <div class="hintHide">
+                  표시된 값을 제곱합니다.
+              </div>
+          </td>
+          <td class="operationKey hintModal">x^y
+              <div class="hintHide">
+                  표시된 값을 다음에 입력된 값의 거듭제곱으로 올립니다.
+              </div>
+          </td>
         </tr>
         <tr>
-          <td class="operationKey">n!</td>
-          <td class="operationKey">i</td>
-          <td class="operationKey">e</td>
-          <td class="operationKey">π</td>
+          <td class="operationKey hintModal">n!
+              <div class="hintHide">
+                  표시된 값의 계승값을 계산합니다.
+              </div>
+          </td>
+          <td class="operationKey hintModal">i
+              <div class="hintHide">
+                  복소수 'i' 를 입력합니다.
+              </div>
+          </td>
+          <td class="operationKey hintModal">e
+              <div class="hintHide">
+                  e(2.71828...)을 입력합니다.
+              </div>
+          </td>
+          <td class="operationKey hintModal">π
+              <div class="hintHide">
+                pi(3.14159...)를 입력합니다.
+              </div>
+          </td>
         </tr>
       </table>
       <div id="box">
