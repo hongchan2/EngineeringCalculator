@@ -9,210 +9,370 @@
     <script src="./popmodal/popModal.js"></script>
     <script src='math.js' type='text/javascript'></script>
     <script>
-    //$(document).ready(function(){
-    $(function(){
-        var copied; // Copy and Paste
-        var susic = []; // History
-        var result = []; // History
-        var historyCnt = 0; // History
-        var temp; // History
-        var rightSusic = false; // History
-        var help = false; // Help
+      function fact(num) {
+        if(num == 0)
+          return 1;
+        else 
+          return num * fact(num - 1);
+      }
 
-        var $resultHint = $('<div class="hintHide"> 입력된 수식의 결과를 표시합니다.</div>');
+      $(function(){
+          var copied; // Copy and Paste
+          var susic = []; // History
+          var result = []; // History
+          var historyCnt = 0; // History
+          var temp; // History
+          var rightSusic = false; // History
+          var help = false; // Help
 
-        var parser = math.parser();
-        var displayValue = '';
+          var parenNum = 0; // Operation
+          var parenIndex = 0;
 
-        $('#userInput').text(displayValue);
+          var $resultHint = $('<div class="hintHide"> 입력된 수식의 결과를 표시합니다.</div>');
 
-        $('.key, .dropKey, .operationKey').each(function(index, key){
-            $(this).click(function(e){
-                var clickedText = $(this).text();
+          var parser = math.parser();
+          var displayValue = '';
 
-                /* Change character */
-                switch(clickedText){
-                  case '×':
-                    clickedText = '*';
-                    break;
-                  case '÷':
-                    clickedText = '/';
-                    break;
-                  case 'π':
-                    clickedText = 'pi';
-                    break;
-                  case 'x^2':
-                    clickedText = '^2';
-                    break;
-                }
+          $('#userInput').text(displayValue);
 
-                /* Evaluate */
-                if(clickedText == 'EV')
-                {
-                  rightSusic = true;
-                    temp = displayValue;
-                    try
-                    {
-                      if(displayValue != '')
-                      {
-                        displayValue = parser.eval(displayValue).toString();
-                      }
-                      else
-                      {
-                        displayValue = '0';
-                        rightSusic = false;
-                      }
-                      var tokens = displayValue.split(' ');
+          $('.key, .dropKey, .operationKey').each(function(index, key){
+              $(this).click(function(e){
+                  var clickedText = $(this).text();
+                  var sp = clickedText.split(' ');
+                  clickedText = sp[0];
 
-                      /* Function */
-                      if(tokens[0] == 'function')
-                      {
-                        displayValue = tokens[0];
-                        rightSusic = false;
-                      }
-                      /* ERROR */
-                      else if(tokens[0] == 'error'){
-                        rightSusic = false;
-                      }
+                  /*
+                  console.log("0 " + sp[0]);
+                  console.log("1 " + sp[1]);
+                  console.log("2 " + sp[2]);
+                  */
 
-                      /* Push to Susic, Result Array */
-                      if(rightSusic){
-                        susic.push(temp);
-                        result.push(displayValue);
-                      }
+                  /* Operation */
 
+                  /*  */
+                  /*
+                  if(clickedText == 'n!\n'){
+                    if(!$.isNumeric(displayValue)){
+                      // ERROR - Not a integer
+                      
+                      // Print Result
                       $('#status').text("Result");
-                      $('#result').text(displayValue);
+                      $('#result').text("Error");
                       displayValue = '';
-                      temp = '';
-                      rightSusic = false;
+                      return;
                     }
-                    catch (e)
-                    {
-                        displayValue = '';
-                        if(displayValue != 'function')
-                        {
-                            $('#result').text(e);
-                        }
-                    }
-                }
-                else
-                {
+                    var opResult = fact(displayValue);
+
+                    // Push to Array
+                    susic.push($(userInput).text()+'!');
+                    result.push(opResult);
+
+                    // Print Result
+                    $('#status').text("Result");
+                    $('#result').text(opResult);
+                    displayValue = '';
+                    return;
+                  }
+                  else if(clickedText == 'x^2\n' || clickedText){
+                    displayValue = parser.eval(displayValue).toString();
+                    
+                  }
+                  */
+
+                  /* Process Parenthesis */
+                  if(parenNum){
                     /* Clear */
                     if(clickedText == 'AC')
                     {
-                        displayValue = '';
-                        $('#userInput').text(displayValue);
-                        $('#result').text('');
-                        $('#status').text("Clear");
+                      parenNum = 0;
+                      parenIndex = 0;
+                      displayValue = '';
+
+                      $('#userInput').text(displayValue);
+                      $('#result').text('');
+                      $('#status').text("Clear");
+                      $('#next').removeClass('nextSelected');
+                      return;
                     }
                     /* Backspace */
                     else if(clickedText == '←'){
                       displayValue = displayValue.substring(0, displayValue.length - 1);
+                      parenNum = 0;
+                      parenIndex = 0;
+
                       $('#userInput').text(displayValue);
                       $('#status').text("Erase");
+                      $('#next').removeClass('nextSelected');
+                      return;
                     }
-                    /* Input */
-                    else
-                    {
-                        displayValue += clickedText;
+                    var tempStr = displayValue.substring(0, parenIndex);
+                    tempStr += clickedText;
+                    tempStr += ')';
+                    displayValue = tempStr;
+                    parenIndex++;
+
+                    // Print
+                    $('#userInput').text(displayValue);
+                    //$('#result').text('');
+                    $('#status').text("Input");
+                    return;
+                  }
+
+                  /* Change Character */
+                  switch(clickedText){
+                    case '×':
+                      clickedText = '*';
+                      break;
+                    case '÷':
+                      clickedText = '/';
+                      break;
+                    case 'π\n':
+                      clickedText = 'pi';
+                      break;
+                    case 'i\n':
+                      clickedText = 'i';
+                      break;
+                    case 'e\n':
+                      clickedText = 'e';
+                      break;
+                    case 'n!\n':
+                      clickedText = '!';
+                      break;
+                    case 'x^2\n':
+                      clickedText = '^(2)';
+                      break;
+                    case 'x^y\n':
+                      clickedText = '^()';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 2;
+                      break;
+                    case 'sqrt\n':
+                      clickedText = 'sqrt()';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 5;
+                      break;
+                    case 'exp\n':
+                      clickedText = 'exp()';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 4;
+                      break;
+                    case 'sin':
+                      clickedText = 'sin()';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 4;
+                      break;
+                    case 'cos':
+                      clickedText = 'cos()';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 4;
+                      break;
+                    case 'tan':
+                      clickedText = 'tan()';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 4;
+                      break;
+                    case 'ln':
+                      clickedText = 'log()';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 4;
+                      break;
+                    case 'f(':
+                      clickedText = 'f()=';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 2;
+                      break;
+                    case 'g(':
+                      clickedText = 'g()=';
+                      parenNum = 1;
+                      parenIndex = displayValue.length + 2;
+                      break;
+                  }
+                  
+                  /* Active Next Button */
+                  if(parenNum){
+                    $('#next').addClass('nextSelected');
+                  }
+
+                  /* Evaluate */
+                  if(clickedText == 'EV')
+                  {
+                      rightSusic = true;
+                      temp = displayValue;
+                      try
+                      {
+                        if(displayValue != '')
+                        {
+                          displayValue = parser.eval(displayValue).toString();
+                        }
+                        else
+                        {
+                          displayValue = '0';
+                          rightSusic = false;
+                        }
+                        var tokens = displayValue.split(' ');
+
+                        /* Function */
+                        if(tokens[0] == 'function')
+                        {
+                          displayValue = tokens[0];
+                          rightSusic = false;
+                        }
+
+                        /* ERROR */
+                        else if(tokens[0] == 'error'){
+                          rightSusic = false;
+                          // Show Error Window
+                        }
+
+                        /* Push to Susic, Result Array */
+                        if(rightSusic){
+                          susic.push(temp);
+                          result.push(displayValue);
+                        }
+
+                        $('#status').text("Result");
+                        $('#result').text(displayValue);
+                        displayValue = '';
+                        temp = '';
+                        rightSusic = false;
+                      }
+                      catch (e)
+                      {
+                          displayValue = '';
+                          if(displayValue != 'function')
+                          {
+                              $('#result').text(e);
+                          }
+                      }
+                  }
+                  else
+                  {
+                      /* Clear */
+                      if(clickedText == 'AC')
+                      {
+                          displayValue = '';
+                          $('#userInput').text(displayValue);
+                          $('#result').text('');
+                          $('#status').text("Clear");
+                      }
+                      /* Backspace */
+                      else if(clickedText == '←'){
+                        displayValue = displayValue.substring(0, displayValue.length - 1);
                         $('#userInput').text(displayValue);
-                        $('#result').text('');
-                        $('#status').text("Input");
-                    }
-                }
+                        $('#status').text("Erase");
+                      }
+                      /* Input */
+                      else
+                      {
+                          displayValue += clickedText;
+                          $('#userInput').text(displayValue);
+                          $('#result').text('');
+                          $('#status').text("Input");
+                      }
+                  }
 
-                e.preventDefault()
-            })
-        })
+                  e.preventDefault()
+              })
+          })
 
-        /* Install Dropdown Event Handler */
-        $('.selectBox').click(function(){
-          $('#status').text("");
-          var $dropDown = $(this);
-          var toggle = $dropDown.children().hasClass('show');
-          if(toggle == true){
-            $dropDown.children().removeClass('show');
-            $dropDown.removeClass('selected');
-            $dropDown.children().slideUp(400);
-          }else{
-            $dropDown.children().addClass('show');
-            $dropDown.addClass('selected');
-            $dropDown.children().slideDown(400);
-          }
-        });
-
-        /* Install Copy, Paste Event Handler */
-        $('.addKey').click(function(e){
-          var key = $(this).text();
-          if(key == "Copy"){
-            var text = $('#userInput').get(0);
-            var selection = window.getSelection();
-            var range = document.createRange();
-            
-            /* Copy to Clip Board */
-            range.selectNodeContents(text);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            document.execCommand('Copy');
-
-            /* Copy to Local Variable */
-            copied = $('#userInput').text();
-            $('#status').text("Copy");
-          }
-          else if(key == "Paste"){
-            /* Append Paste */
-            displayValue += copied;
-            $('#userInput').text(displayValue);
-            $('#status').text("Paste");
-          }
-        });
-
-        /* Install History Event Handler */
-        $('#history').click(function(){
-            /* Add New Susic And Result */
-            for(var i = 0; i < susic.length; i++){
-              var content1 = '<tr><td class="susic">' +susic[i] + '</td>';
-              var content2 = '<td class="result">' + result[i] + '</td></tr>';
-
-              var $div = $(content1 + content2);
-              $('#historyPrint').append($div);
-            }
-
-            /* Clear Array */
-            susic.splice(0, susic.length);
-            result.splice(0, result.length);
-
-            /* Show Popup Screen */
-            $('#additional').popModal({
-              html : $('#historyContent').html()
-            });
-        });
-
-        /* Install Help Event Handler */
-        $('#help').click(function(){
-          /* Original Mode (Hide ToolTip) */
-          if(help){
-            help = false;
-            $(this).removeClass('helpSelected');
-
-            $('.hintModal > div').removeClass('hintModal_container');
-            $('.hintModal > div').addClass('hintHide');
+          /* Install Dropdown Event Handler */
+          $('.selectBox').click(function(){
             $('#status').text("");
-          }
-          /* Explain Mode (Show ToolTip) */
-          else{
-            help = true;
-            // add result, status tag
+            var $dropDown = $(this);
+            var toggle = $dropDown.children().hasClass('show');
+            if(toggle == true){
+              $dropDown.children().removeClass('show');
+              $dropDown.removeClass('selected');
+              $dropDown.children().slideUp(400);
+            }else{
+              $dropDown.children().addClass('show');
+              $dropDown.addClass('selected');
+              $dropDown.children().slideDown(400);
+            }
+          });
 
-            $(this).addClass('helpSelected');
+          /* Install Copy, Paste Event Handler */
+          $('.addKey').click(function(e){
+            var key = $(this).text();
+            if(key == "Copy"){
+              var text = $('#userInput').get(0);
+              var selection = window.getSelection();
+              var range = document.createRange();
+              
+              /* Copy to Clip Board */
+              range.selectNodeContents(text);
+              selection.removeAllRanges();
+              selection.addRange(range);
+              document.execCommand('Copy');
 
-            $('.hintModal > div').removeClass('hintHide');
-            $('.hintModal > div').addClass('hintModal_container');
-            $('#status').text("Help");
-          }
-        });
-    });
+              /* Copy to Local Variable */
+              copied = $('#userInput').text();
+              $('#status').text("Copy");
+            }
+            else if(key == "Paste"){
+              /* Append Paste */
+              displayValue += copied;
+              $('#userInput').text(displayValue);
+              $('#status').text("Paste");
+            }
+          });
+
+          /* Install History Event Handler */
+          $('#history').click(function(){
+              /* Add New Susic And Result */
+              for(var i = 0; i < susic.length; i++){
+                var content1 = '<tr><td class="susic">' +susic[i] + '</td>';
+                var content2 = '<td class="result">' + result[i] + '</td></tr>';
+
+                var $div = $(content1 + content2);
+                $('#historyPrint').append($div);
+              }
+
+              /* Clear Array */
+              susic.splice(0, susic.length);
+              result.splice(0, result.length);
+
+              /* Show Popup Screen */
+              $('#additional').popModal({
+                html : $('#historyContent').html()
+              });
+          });
+
+          /* Install Help Event Handler */
+          $('#help').click(function(){
+            /* Original Mode (Hide ToolTip) */
+            if(help){
+              help = false;
+              $(this).removeClass('helpSelected');
+
+              $('.hintModal > .thisIsHint').removeClass('hintModal_container');
+              $('.hintModal > .thisIsHint').addClass('hintHide');
+              $('#status').text("");
+            }
+            /* Explain Mode (Show ToolTip) */
+            else{
+              help = true;
+              // add result, status tag
+
+              $(this).addClass('helpSelected');
+
+              $('.hintModal > .thisIsHint').removeClass('hintHide');
+              $('.hintModal > .thisIsHint').addClass('hintModal_container');
+              $('#status').text("Help");
+            }
+          });
+
+          /* Install Next Event Handler */
+          $('#next').click(function(){
+            if(parenNum){
+              parenNum--;
+              if(parenNum == 0){
+                parenIndex = 0;
+                $('#next').removeClass('nextSelected');
+              }
+            }
+          });
+      });
     </script>
   </head>
   <body>
@@ -234,91 +394,102 @@
 
     <div id="calculator">
       <div id="userInput" class="hintModal">
-          <div class="hintHide">
+          <div class="hintHide thisIsHint">
               사용자의 입력이 표시됩니다.
           </div>
       </div>
       <div id="status" class="hintModal">
-          <div class="hintHide">
+          <div class="hintHide thisIsHint">
               현재 계산기 상태를 표시합니다.<br>
               Input - 사용자 입력<br>
               Reuslt - 수식의 결과 출력<br>
           </div>
       </div>
       <div id="result" class="hintModal">
-          <div class="hintHide">
+          <div class="hintHide thisIsHint">
               입력된 수식의 결과를 표시합니다.
           </div>
       </div>
-      <table id="operation">
+      <div id="operation">
+      <table id="operationRowFirst">
         <tr>
           <td class="operationKey hintModal">cross
-              <div class="hintHide">
-                  @외적 설명
+              <div class="hintHide thisIsHint">
+                  괄호 안 두 벡터의 외적을 계산합니다. 단, 각 벡터는 3차원이여야 합니다.
+                  <p>사용예시 :</p> 
               </div>
           </td>
           <td class="operationKey hintModal">dot
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   @내적 설명
               </div>
           </td>
           <td class="operationKey hintModal">det
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   @행렬식 설명
               </div>
           </td>
           <td class="operationKey hintModal">inv
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   @행렬식 설명
               </div>
           </td>
         </tr>
+      </table>
+      <table id="operationRowSecond">
         <tr>
           <td class="operationKey hintModal">exp
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   @지수함수 설명
               </div>
           </td>
           <td class="operationKey hintModal">sqrt
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   표시된 값의 제곱근을 계산합니다.
               </div>
           </td>
           <td class="operationKey hintModal">x^2
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   표시된 값을 제곱합니다.
               </div>
           </td>
           <td class="operationKey hintModal">x^y
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   표시된 값을 다음에 입력된 값의 거듭제곱으로 올립니다.
               </div>
           </td>
         </tr>
+      </table>
+      <table id="operationRowThird">
         <tr>
           <td class="operationKey hintModal">n!
-              <div class="hintHide">
-                  표시된 값의 계승값을 계산합니다.
+              <div class="hintHide thisIsHint">
+                  계승값을 구하는 !를 입력합니다.
               </div>
           </td>
           <td class="operationKey hintModal">i
-              <div class="hintHide">
-                  복소수 'i' 를 입력합니다.
+              <div class="hintHide thisIsHint">
+                  복소수 i 를 입력합니다.
               </div>
           </td>
           <td class="operationKey hintModal">e
-              <div class="hintHide">
+              <div class="hintHide thisIsHint">
                   e(2.71828...)을 입력합니다.
               </div>
           </td>
           <td class="operationKey hintModal">π
-              <div class="hintHide">
+            <div class="hintHide thisIsHint">
                 pi(3.14159...)를 입력합니다.
               </div>
           </td>
         </tr>
       </table>
-      <div id="box">
+    </div>
+      <div id="box" class="hintModal">
+          <div class="hintHide thisIsHint">
+              일련의 연관된 연산들을 모아놓은 곳입니다.
+              <p>클릭하여 드롭다운 박스를 활성화 한 후 사용할 수 있습니다.</p>
+          </div>
         <table>
           <tr>
             <td class="selectBox">x, y, z
@@ -328,10 +499,10 @@
                 <span class="dropKey">z</span>
               </div>
             </td>
-            <td class="selectBox">f(x)
+            <td class="selectBox">f( )
                 <div class="dropDown">
-                    <span class="dropKey">f(x)</span>
-                    <span class="dropKey">g(x)</span>
+                    <span class="dropKey">f( )</span>
+                    <span class="dropKey">g( )</span>
                 </div>
             </td>
           </tr>
@@ -374,10 +545,35 @@
       </div>
       <table id="additional">
         <tr>
-          <td id="help" class="addKey">Help</td>
-          <td id="history" class="addKey">History</td>
-          <td class="addKey">Copy</td>
-          <td class="addKey">Paste</td>
+          <td id="help" class="addKey addLeftKey hintModal">Help
+              <div class="hintModal_container">
+                  계산기 설명모드로 전환합니다.
+                  <p>클릭하여 설명모드를 켜고 끌 수 있습니다.</p>
+              </div>
+          </td>
+          <td id="history" class="addKey addLeftKey hintModal">History
+              <div class="hintHide thisIsHint">
+                  이전 수식 결과를 볼 수 있습니다.
+              </div>
+          </td>
+          <td id="next" class="addKey hintModal">Next
+              <div class="hintHide thisIsHint">
+                  sin, x^y, exp, sqrt, cross 등 괄호 연산을 쉽게 입력하기 위해 사용합니다.
+                  <p>
+                    사용 예시:
+                  </p>
+              </div>
+          </td>
+          <td class="addKey hintModal">Copy
+              <div class="hintHide thisIsHint">
+                  수식을 클립보드에 복사합니다.
+              </div>
+          </td>
+          <td class="addKey hintModal">Paste
+              <div class="hintHide thisIsHint">
+                  복사된 수식을 붙여넣기 합니다. (Append)
+              </div>
+          </td>
          </tr>
       </table>
       <div id="number">
