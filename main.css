@@ -235,7 +235,7 @@
 }
 
 #historyPrint{
-  width:50px;
+  min-width:70px;
   font-size: 18px;
   margin: 0px 7px 7px 0px; 
 }
@@ -247,11 +247,11 @@
 #historyPrint .susic{
   border-right: 1px solid black;
   text-align:center;
-  padding-right:7px;
+  padding-right:10px;
 }
 
 #historyPrint .result{
-  padding-left:7px;
+  padding-left:10px;
   text-align:center;
 }
 
@@ -279,4 +279,48 @@
 #operationRowThird{
   z-index:1;
   position:relative;
+}
+
+.matrix{
+  width:44px;
+  height:22px;
+  padding:10px 0px 10px 0px;
+  margin:0px 2px 2px 0px;
+  font-size:15px;
+  background-color:#6C6C6C;
+  display:inline-block;
+  color:white;
+  cursor:pointer;
+  text-align: center;
+}
+
+.vector{
+  width:44px;
+  height:22px;
+  padding:10px 0px 10px 0px;
+  margin:0px 2px 2px 0px;
+  font-size:15px;
+  background-color:#6C6C6C;
+  display:inline-block;
+  color:white;
+  cursor:pointer;
+  text-align: center;
+}
+
+.matrix:hover{
+  background-color:#909090;
+}
+
+.vector:hover{
+  background-color:#909090;
+}
+
+.row{
+  padding-left:27px;
+  padding-right:14px;
+}
+
+input{
+  width:30px;
+  text-align:center;
 }
