@@ -4,10 +4,10 @@
     <title>Calculator</title>
 
     <link type="text/css" rel="stylesheet" href="./popmodal/popModal.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="./src/main.css">
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js' type='text/javascript'></script>
     <script src="./popmodal/popModal.js"></script>
-    <script src='math.js' type='text/javascript'></script>
+    <script src='./src/math.js' type='text/javascript'></script>
     <script>
       $(function(){
           var copied; // Copy and Paste
@@ -21,14 +21,17 @@
           var parenNum = 0; // Operation
           var parenIndex = 0; // Operation
 
-          var row = 0;  // Operation
-          var col = 0;  // Operation
-          var matrixRowNum = 0; // Operation
-          var matrixColNum = 0; // Operation
-          var matrixOriginalColNum = 0; // Operation
-          var matrixIndex = 0;  // Operation
-
-          var $resultHint = $('<div class="hintHide"> 입력된 수식의 결과를 표시합니다.</div>');
+          var matrixBool = false; // Matrix, Vector
+          var colStatus = false;  // Matrix, Vector
+          var row = '';  // Matrix, Vector
+          var col = '';  // Matrix, Vector
+          var tempMatrixStr = ''  // Matrix, Vector
+          var tempMatrixStrBool = false // Matrix, Vector
+          var matrixRowNum = 0; // Matrix, Vector
+          var matrixColNum = 0; // Matrix, Vector
+          var matrixOriginalColNum = 0; // Matrix, Vector
+          var matrixIndex = 0;  // Matrix, Vector
+          var operationValue = ""; // Matrix, Vector
 
           var parser = math.parser();
           var displayValue = '';
@@ -41,43 +44,35 @@
                   var sp = clickedText.split(' ');
                   clickedText = sp[0];
 
-                  /*
-                  console.log("0 " + sp[0]);
-                  console.log("1 " + sp[1]);
-                  console.log("2 " + sp[2]);
-                  */
-
-                  /* Operation */
-
-                  /*  */
-                  /*
-                  if(clickedText == 'n!\n'){
-                    if(!$.isNumeric(displayValue)){
-                      // ERROR - Not a integer
-                      
-                      // Print Result
-                      $('#status').text("Result");
-                      $('#result').text("Error");
-                      displayValue = '';
-                      return;
-                    }
-                    var opResult = fact(displayValue);
-
-                    // Push to Array
-                    susic.push($(userInput).text()+'!');
-                    result.push(opResult);
-
-                    // Print Result
-                    $('#status').text("Result");
-                    $('#result').text(opResult);
-                    displayValue = '';
+                 if(matrixBool){
+                   if(clickedText == 'AC' || clickedText == '←' || clickedText == 'EV')
                     return;
-                  }
-                  else if(clickedText == 'x^2\n' || clickedText){
-                    displayValue = parser.eval(displayValue).toString();
-                    
-                  }
-                  */
+                   if(tempMatrixStrBool){
+                     // Only first time
+                     tempMatrixStr = displayValue;
+                     tempMatrixStrBool = false;
+                   }
+
+                   if(clickedText == '×'){
+                     // Input Value is ×
+                     colStatus = true;
+                     tempMatrixStr += '×';
+                   }
+                   else if(colStatus){
+                    // Input Value is Col
+                    col += clickedText;
+                    tempMatrixStr += col;
+                   }
+                   else{
+                     // Input Value is Row
+                     row += clickedText;
+                     tempMatrixStr += row;
+                   }
+                  $('#status').text("M / V");
+                  $('#userInput').text(tempMatrixStr);
+                  
+                   return;
+                 }
 
                   /* Process Matrix */
                   if(matrixRowNum || matrixColNum){
@@ -107,12 +102,14 @@
                       $('#next').removeClass('nextSelected');
                       return;
                     }
+                    else if(clickedText == 'EV'){
+                      return;
+                    }
 
                     if(matrixColNum){
                       var tempStr = displayValue.substring(0, matrixIndex);
                       var tempRightStr = displayValue.substring(matrixIndex, displayValue.length);
-                      //alert(tempStr);
-                      //alert(tempRightStr);
+
                       tempStr += clickedText;
                       tempStr += tempRightStr;
 
@@ -122,7 +119,7 @@
                       // Print
                       $('#userInput').text(displayValue);
                       //$('#result').text('');
-                      $('#status').text("Input");
+                      $('#status').text("Matrix");
                       return;
                     }
                   }
@@ -168,7 +165,7 @@
                       // Print
                       $('#userInput').text(displayValue);
                       //$('#result').text('');
-                      $('#status').text("Input");
+                      $('#status').text("Paren");
                       return;
                     }
                   }
@@ -226,26 +223,30 @@
                       parenIndex = displayValue.length + 4;
                       break;
                     case 'f(':
-                      clickedText = 'f()=';
+                      clickedText = 'f()';
                       parenNum = 1;
                       parenIndex = displayValue.length + 2;
                       break;
                     case 'g(':
-                      clickedText = 'g()=';
+                      clickedText = 'g()';
                       parenNum = 1;
                       parenIndex = displayValue.length + 2;
                       break;
                     case 'cross\n':
                       clickedText = 'cross';
+                      operationValue = 'vector';
                       break;
                     case 'dot\n':
                       clickedText = 'dot';
+                      operationValue = 'vector';
                       break;
                     case 'det\n':
                       clickedText = 'det';
+                      operationValue = 'matrix';
                       break;
                     case 'inv\n':
                       clickedText = 'inv';
+                      operationValue = 'matrix';
                       break;
                   }
                   
@@ -279,20 +280,23 @@
                           rightSusic = false;
                         }
 
-                        /* ERROR */
-                        else if(tokens[0] == 'error'){
-                          rightSusic = false;
-                          // Show Error Window
-                        }
-
                         /* Push to Susic, Result Array */
                         if(rightSusic){
                           susic.push(temp);
                           result.push(displayValue);
                         }
 
-                        $('#status').text("Result");
-                        $('#result').text(displayValue);
+                        if(displayValue.length > 18){
+                          // Long Value
+                          $('#result').text("알림창의 결과를 확인하세요");
+                          $('#status').text("Result");
+                          alert(displayValue);
+                        }
+                        else{
+                          // Print Value
+                          $('#status').text("Result");
+                          $('#result').text(displayValue);
+                        }
                         displayValue = '';
                         temp = '';
                         rightSusic = false;
@@ -302,7 +306,8 @@
                           displayValue = '';
                           if(displayValue != 'function')
                           {
-                              $('#result').text(e);
+                              $('#status').text("Result");
+                              $('#result').text("Syntex Error");
                           }
                       }
                   }
@@ -332,11 +337,17 @@
 
                           if(clickedText == "cross" || clickedText == "dot"){
                             // Vector
-                            $('.vector').trigger('click');
+                            displayValue += "(";
+                            matrixBool = true;
+                            tempMatrixStrBool = true;
+                            $('.vector').addClass('vectorSelected');
                           }
                           else if(clickedText == "det" || clickedText == "inv"){
                             // Matrix
-                            $('.matrix').trigger('click');
+                            displayValue += "(";
+                            matrixBool = true;
+                            tempMatrixStrBool = true;
+                            $('.matrix').addClass('matrixSelected');
                           }
                       }
                   }
@@ -362,9 +373,12 @@
           });
 
           /* Install Copy, Paste Event Handler */
-          $('.addKey').click(function(e){
+          $('.copyPaste').click(function(e){
             var key = $(this).text();
-            if(key == "Copy"){
+            var sp = key.split(' ');
+            key = sp[0];
+
+            if(key == "Copy\n"){
               var text = $('#userInput').get(0);
               var selection = window.getSelection();
               var range = document.createRange();
@@ -379,11 +393,18 @@
               copied = $('#userInput').text();
               $('#status').text("Copy");
             }
-            else if(key == "Paste"){
+            else if(key == "Paste\n"){
               /* Append Paste */
               displayValue += copied;
               $('#userInput').text(displayValue);
               $('#status').text("Paste");
+
+              /* Original Paste */
+              /*
+                displayValue = copied;
+                $('#userInput').text(displayValue);
+                $('#status').text("Paste");
+              */
             }
           });
 
@@ -423,7 +444,6 @@
             else{
               help = true;
               // add result, status tag
-
               $(this).addClass('helpSelected');
 
               $('.hintModal > .thisIsHint').removeClass('hintHide');
@@ -456,6 +476,12 @@
                     matrixIndex = 0;
                     matrixColNum = 0;
                     $('#next').removeClass('nextSelected');
+
+                    if(operationValue == "matrix" || operationValue == "vector"){
+                      displayValue += ")";
+                      $('#userInput').text(displayValue);
+                      operationValue = "";
+                    }
                   }
                 }
               }
@@ -464,78 +490,93 @@
 
           /* Install Matrix Event Handler */
           $('.matrix').click(function(){
-            $(this).popModal({
-                html : $('#matrixContent').html(),
-                onClose : function(){
-                  row = $('#matrixRowValue').attr('value');
-                  col = $('#matrixColValue').val();
-                  alert(row);
+            if(matrixBool){
+              $(this).removeClass('matrixSelected');
+              matrixBool = false;
+              colStatus = false;
 
-                  if(row > 0 && col > 0){
-                    var printValue = "[";
-                    for(var i = 0; i < row; i++){
-                      printValue += "[";
-                      for(var j = 0; j < col - 1; j++){
-                        printValue += ",";
-                      }
-                      printValue += "],";
-                    }
-                    printValue = printValue.substring(0, printValue.length - 1);
-                    printValue += "]";
-
-                    matrixRowNum = row;
-                    matrixColNum = col;
-                    matrixOriginalColNum = col;
-                    matrixIndex = displayValue.length + 2;
-
-                    displayValue += printValue;
-                    $('#next').addClass('nextSelected');
-                    $('#userInput').text(displayValue);
-                    $('#result').text('');
-                    $('#status').text("Input");
+              if(row > 0 && col > 0){
+                var printValue = "[";
+                for(var i = 0; i < row; i++){
+                  printValue += "[";
+                  for(var j = 0; j < col - 1; j++){
+                    printValue += ",";
                   }
-                  else
-                    return;
+                  printValue += "],";
                 }
-            });
+                printValue = printValue.substring(0, printValue.length - 1);
+                printValue += "]";
+
+                matrixRowNum = row;
+                matrixColNum = col;
+                matrixOriginalColNum = col;
+                matrixIndex = displayValue.length + 2;
+
+                col = '';
+                row = '';
+                tempMatrixStr = '';
+                tempMatrixStrBool = false;
+                displayValue += printValue;
+                $('#next').addClass('nextSelected');
+                $('#userInput').text(displayValue);
+                $('#result').text('');
+                $('#status').text("Input");
+              }
+              else{
+                col = '';
+                row = '';
+              }
+            }
+            else{
+                $(this).addClass('matrixSelected');
+                matrixBool = true;
+                tempMatrixStrBool = true;
+            }
           });
 
           /* Install Vector Event Handler */
           $('.vector').click(function(){
-            $(this).popModal({
-                html : $('#vectorContent').html(),
-                onClose : function(){
-                  alert($('#vectorRowValue'));
-                  row = $('#vectorRowValue').val();
-                  col = $('#vectorColValue').val();
+            if(matrixBool){
+              $(this).removeClass('vectorSelected');
+              matrixBool = false;
+              colStatus = false;
 
-                  if(row > 0 && col > 0){
-                    var printValue = "(";
-                    for(var i = 0; i < row; i++){
-                      printValue += "[";
-                      for(var j = 0; j < col - 1; j++){
-                        printValue += ",";
-                      }
-                      printValue += "],";
-                    }
-                    printValue = printValue.substring(0, printValue.length - 1);
-                    printValue += ")";
-
-                    matrixRowNum = row;
-                    matrixColNum = col;
-                    matrixOriginalColNum = col;
-                    matrixIndex = displayValue.length + 2;
-
-                    displayValue += printValue;
-                    $('#next').addClass('nextSelected');
-                    $('#userInput').text(displayValue);
-                    $('#result').text('');
-                    $('#status').text("Input");
+              if(row > 0 && col > 0){
+                var printValue = "";
+                for(var i = 0; i < row; i++){
+                  printValue += "[";
+                  for(var j = 0; j < col - 1; j++){
+                    printValue += ",";
                   }
-                  else
-                    return;
+                  printValue += "],";
                 }
-            });
+                printValue = printValue.substring(0, printValue.length - 1);
+
+                matrixRowNum = row;
+                matrixColNum = col;
+                matrixOriginalColNum = col;
+                matrixIndex = displayValue.length + 1;
+
+                col = '';
+                row = '';
+                tempMatrixStr = '';
+                tempMatrixStrBool = false;
+                displayValue += printValue;
+                $('#next').addClass('nextSelected');
+                $('#userInput').text(displayValue);
+                $('#result').text('');
+                $('#status').text("Input");
+              }
+              else{
+                col = '';
+                row = '';
+              }
+            }
+            else{
+                $(this).addClass('vectorSelected');
+                matrixBool = true;
+                tempMatrixStrBool = true;
+            }
           });
       });
     </script>
@@ -552,43 +593,12 @@
          </div>
     </div>
 
-    <div id="matrixContent" style="display:none">
+    <div id="showResult" style="display:none">
         <div>
-          m x n 행렬의 크기를 입력 후 창을 닫아주세요.<br><br>
-          <table>
-            <tr>
-              <td class="row">행(m)</td>
-              <td class="col">열(n)</td>
-            </tr>
-            <tr>
-              <td class="row"><input id="matrixRowValue"></td>
-              <td class="col"><input id="matrixColValue"></td>
-            </tr>
-          </table>
-        </div>
-        <div class="popModal_footer">
-            <button type="button" data-popModalBut="ok">OK</button>
-            <button type="button" data-popmodalbut="cancel">cancel</button>
-        </div>
-    </div>
-
-    <div id="vectorContent" style="display:none">
-        <div>
-          n 차원 벡터의 개수를 입력 후 창을 닫아주세요.<br><br>
-          <table>
-            <tr>
-              <td class="row">개수</td>
-              <td class="col">n차원</td>
-            </tr>
-            <tr>
-              <td class="row"><input id="vectorRowValue" type="text" value="2"></td>
-              <td class="col"><input id="vectorColValue" type="text" value="3"></td>
-            </tr>
-          </table>
-        </div>
-        <div class="popModal_footer">
-            <button type="button" data-popModalBut="ok">OK</button>
-            <button type="button" data-popmodalbut="cancel">cancel</button>
+          m x n 행렬의 크기를 계산기의 숫자, 곱하기 연산 형태로 입력해 주세요.
+          <p>
+            사용 예시 : 2x3
+          </p>
         </div>
     </div>
 
@@ -601,8 +611,6 @@
       <div id="status" class="hintModal">
           <div class="hintHide thisIsHint">
               현재 계산기 상태를 표시합니다.<br>
-              Input - 사용자 입력<br>
-              Reuslt - 수식의 결과 출력<br>
           </div>
       </div>
       <div id="result" class="hintModal">
@@ -615,26 +623,30 @@
         <tr>
           <td class="operationKey hintModal">cross
               <div class="hintHide thisIsHint">
-                  괄호 안 두 벡터의 외적을 계산합니다. 단, 각 벡터는 3차원이여야 합니다.
+                  괄호 안 두 벡터의 외적을 계산합니다.<br>단, 각 벡터는 3차원이여야 합니다.
+                  <br><br>클릭시, 자동으로 (벡터) 입력모드가 활성화 됩니다. 벡터입력 예시는 밑의 (벡터) 도움말을 참조해주세요.
                   <p>사용예시 : cross([1, 2, 3],[4, 5, 6])</p> 
               </div>
           </td>
           <td class="operationKey hintModal">dot
               <div class="hintHide thisIsHint">
                   괄호 안 두 벡터의 내적을 계산합니다.
+                  <br><br>클릭시, 자동으로 (벡터) 입력모드가 활성화 됩니다. 벡터입력 예시는 밑의 (벡터) 도움말을 참조해주세요.
                   <p>사용예시 : dot([1, 2, 3],[4, 5, 6])</p> 
               </div>
           </td>
           <td class="operationKey hintModal">det
               <div class="hintHide thisIsHint">
                   행렬식을 계산합니다.
-                  <p>사용예시 : det[[1, 2, 3],[4, 5, 6],[7, 8, 9]]</p> 
+                  <br><br>클릭시, 자동으로 [행렬] 입력모드가 활성화 됩니다. 행렬입력 예시는 밑의 [행렬] 도움말을 참조해주세요.
+                  <p>사용예시 : det([[1, 2, 3],[4, 5, 6],[7, 8, 9]])</p> 
               </div>
           </td>
           <td class="operationKey hintModal">inv
               <div class="hintHide thisIsHint">
                   역행렬을 계산합니다.
-                  <p>사용예시 : inv[[1, 2, 3],[4, 5, 6],[7, 8, 9]]</p> 
+                  <br><br>클릭시, 자동으로 [행렬] 입력모드가 활성화 됩니다. 행렬입력 예시는 밑의 [행렬] 도움말을 참조해주세요.
+                  <p>사용예시 : inv([[1, 2, 3],[4, 5, 6],[7, 8, 9]])</p> 
               </div>
           </td>
         </tr>
@@ -646,7 +658,17 @@
                   m행 n열 행렬을 손쉽게 만듭니다.
                   <p>
                       사용 예시 : [[10, 20, 30],[4, 5, 6],[7, 8, 9]]<br><br>
-                      [행렬] 클릭 -> 행, 열 정보 입력 -> 1, 0 입력 -> Next 클릭 -> 2, 0 입력 -> Next 클릭 -> ... -> 8 입력 -> Next 클릭 -> 9 입력 -> Next 클릭
+                      1. [행렬] 클릭<br>
+                      2. 3 입력<br>
+                      3. × 입력<br>
+                      4. 3 입력<br>
+                      5. [행렬] 클릭<br><br>
+
+                      6. 10 입력<br>
+                      7. Next 클릭<br>
+                      &nbsp;&nbsp;&nbsp;&nbsp;(중략)<br>
+                      8. 9 입력<br>
+                      9. Next 클릭<br>
                   </p>
               </div>
           </td>
@@ -654,8 +676,18 @@
               <div class="hintHide thisIsHint">
                   n차원 백터를 손쉽게 만듭니다.
                   <p>
-                      사용 예시 : ([10, 2, 3],[4, 5, 6])<br><br>
-                      [벡터] 클릭 -> 크기, 차원 정보 입력 -> 1, 0 입력 -> Next 클릭 -> 2, 0 입력 -> Next 클릭 -> ... -> 8 입력 -> Next 클릭 -> 9 입력 -> Next 클릭
+                      사용 예시 : [1, 2, 3],[4, 5, 6]<br><br>
+                      1. (벡터) 클릭<br>
+                      2. 2 입력<br>
+                      3. × 입력<br>
+                      4. 3 입력<br>
+                      5. (벡터) 클릭<br><br>
+
+                      6. 1 입력<br>
+                      7. Next 클릭<br>
+                      &nbsp;&nbsp;&nbsp;&nbsp;(중략)<br>
+                      8. 6 입력<br>
+                      9. Next 클릭<br>
                   </p>
               </div>
           </td>
@@ -664,7 +696,10 @@
                   지수함수를 계산합니다.
                   <p>
                     사용 예시 : exp(10)<br><br>
-                    exp 클릭 -> 1, 0 입력 -> 수식을 더 작성할 경우 Next, 연산할 경우 EV 클릭
+                    1. exp 클릭<br>
+                    2. 10 입력<br>
+                    3. 수식을 더 작성할 경우 Next<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;연산할 경우 EV 클릭
                   </p>
               </div>
           </td>
@@ -672,8 +707,12 @@
               <div class="hintHide thisIsHint">
                   표시된 값을 다음에 입력된 값의 거듭제곱으로 올립니다.
                   <p>
-                    사용 예시 : 4^12<br><br>
-                    4 입력 -> x^y 클릭 -> 1, 2 입력 -> 수식을 더 작성할 경우 Next, 연산할 경우 EV 클릭
+                    사용 예시 : 4^(12)<br><br>
+                    1. 4 입력<br>
+                    2. x^y 클릭<br>
+                    3. 12 입력<br>
+                    4. 수식을 더 작성할 경우 Next<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;연산할 경우 EV 클릭
                   </p>
               </div>
           </td>
@@ -686,7 +725,10 @@
                   표시된 값의 제곱근을 계산합니다.
                   <p>
                       사용 예시 : sqrt(36)<br><br>
-                      sqrt 클릭 -> 3, 6 입력 -> 수식을 더 작성할 경우 Next, 연산할 경우 EV 클릭
+                      1. sqrt 클릭<br>
+                      2. 36 입력<br>
+                      3. 수식을 더 작성할 경우 Next<br>
+                      &nbsp;&nbsp;&nbsp;&nbsp;연산할 경우 EV 클릭
                   </p>
               </div>
           </td>
@@ -781,20 +823,19 @@
           </td>
           <td id="next" class="addKey hintModal">Next
               <div class="hintHide thisIsHint">
-                  sin, x^y, exp, sqrt, cross 등 괄호 연산을 쉽게 입력하기 위해 사용합니다.
-                  <p>
-                    사용 예시:
-                  </p>
+                  sin, x^y, exp, sqrt 등 괄호 연산과 벡터, 행렬 입력을 쉽게 입력하기 위해 사용합니다.
               </div>
           </td>
-          <td class="addKey hintModal">Copy
+          <td class="addKey hintModal copyPaste">Copy
               <div class="hintHide thisIsHint">
-                  수식을 클립보드에 복사합니다.
+                  수식을 복사합니다.<br>
+                  클립보드에 수식을 복사하여 계산기 이외의 곳에도 사용할 수 있습니다.
               </div>
           </td>
-          <td class="addKey hintModal">Paste
+          <td class="addKey hintModal copyPaste">Paste
               <div class="hintHide thisIsHint">
-                  복사된 수식을 붙여넣기 합니다. (Append)
+                  복사된 수식을 붙여넣기 합니다.<br>
+                  기본동작은 이어붙이기(Append)입니다.
               </div>
           </td>
          </tr>
