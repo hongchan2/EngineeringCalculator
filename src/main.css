@@ -1,6 +1,6 @@
 #calculator{
   width:300px;
-  height:534px;
+  height:600px;
   border: 1px solid black;
   border-radius:3px;
   background-color: #242424;
@@ -8,7 +8,9 @@
 
 #userInput{
   margin:5px;
-  height:90px;
+  width:285px;
+  height:120px;
+  resize:none;
   border: 0.5px solid gray;
   background-color: #484848;
   color:white;
@@ -17,35 +19,40 @@
 }
 
 #status{
-  width:50px;
-  margin:5px 0px 0px 5px;
-  height:26px;
-  padding-top:4px;
+  width:30px;
+  margin:0px 0px 0px 5px;
+  height:40px;
+  padding-top:20px;
   border: 0.5px solid gray;
   background-color: #484848;
   text-align:center;
   color:white;
-  font-size:15px;
+  font-size:11px;
   font-weight: bold;
   border-radius:10px;
   position: absolute;
 
-  top:110px;
+  top:150px;
 }
 
 #result{
-  width:233px;
-  margin:5px 5px 0px 0px;
+  width:250px;
+  margin:0px 5px 0px 0px;
   padding-top:4px;
-  height:30px;
+  height:57px;
   border: 0.5px solid gray;
   background-color: #484848;
   text-align:right;
   color:white;
-  font-size:20px;
+  font-size:11px;
   font-weight: bold;
   border-radius:10px;
   float:right;
+
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden;
 
   z-index:11;
 }
@@ -118,6 +125,10 @@
 
 .importantkey{
   background-color: #FF8224;
+}
+
+.errorkey{
+  background-color:red;
 }
 
 .semimportantkey{

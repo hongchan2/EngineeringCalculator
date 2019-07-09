@@ -8,6 +8,15 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js' type='text/javascript'></script>
     <script src="./popmodal/popModal.js"></script>
     <script src='./src/math.js' type='text/javascript'></script>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>  
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          "HTML-CSS": { scale: 75}
+        });
+    </script>
     <script>
       $(function(){
           var copied; // Copy and Paste
@@ -37,6 +46,7 @@
           var displayValue = '';
 
           $('#userInput').text(displayValue);
+          $('#result').html('$$' + math.parse(0).toTex() + '$$');
 
           $('.key, .dropKey, .operationKey').each(function(index, key){
               $(this).click(function(e){
@@ -85,7 +95,7 @@
                       displayValue = '';
 
                       $('#userInput').text(displayValue);
-                      $('#result').text('');
+                      //$('#result').text('');
                       $('#status').text("Clear");
                       $('#next').removeClass('nextSelected');
                       return;
@@ -133,7 +143,7 @@
                       displayValue = '';
 
                       $('#userInput').text(displayValue);
-                      $('#result').text('');
+                      //'#result').text('');
                       $('#status').text("Clear");
                       $('#next').removeClass('nextSelected');
                       return;
@@ -155,6 +165,13 @@
                       $('#next').removeClass('nextSelected');
                     }
                     else{
+                      if(clickedText == 'x^y\n')
+                        clickedText = '^()';
+                      else if(clickedText == '×')
+                        clickedText = '*';
+                      else if(clickedText == '÷')
+                        clickedText = '/';
+
                       var tempStr = displayValue.substring(0, parenIndex);
                       tempStr += clickedText;
                       tempStr += ')';
@@ -190,7 +207,7 @@
                       parenNum = 1;
                       parenIndex = displayValue.length + 2;
                       break;
-                    case 'sqrt\n':
+                    case '√\n':
                       clickedText = 'sqrt()';
                       parenNum = 1;
                       parenIndex = displayValue.length + 5;
@@ -284,17 +301,9 @@
                           result.push(displayValue);
                         }
 
-                        if(displayValue.length > 18){
-                          // Long Value
-                          $('#result').text("알림창을 확인하세요");
-                          $('#status').text("Result");
-                          alert(displayValue);
-                        }
-                        else{
-                          // Print Value
-                          $('#status').text("Result");
-                          $('#result').text(displayValue);
-                        }
+                        $('#status').text("Result");
+                        $('#userInput').append("\n= " +displayValue);
+
                         displayValue = '';
                         temp = '';
                         rightSusic = false;
@@ -305,7 +314,7 @@
                           if(displayValue != 'function')
                           {
                               $('#status').text("Result");
-                              $('#result').text("Syntex Error");
+                              $('#userInput').append("\n= Syntex Error");
                           }
                       }
                   }
@@ -316,7 +325,7 @@
                       {
                           displayValue = '';
                           $('#userInput').text(displayValue);
-                          $('#result').text('');
+                          //$('#result').text('');
                           $('#status').text("Clear");
                       }
                       /* Backspace */
@@ -324,13 +333,41 @@
                         displayValue = displayValue.substring(0, displayValue.length - 1);
                         $('#userInput').text(displayValue);
                         $('#status').text("Erase");
+
+                        try{
+                          var node = math.parse(displayValue);
+                          var latex = node.toTex({parenthesis: 'keep', implicit: 'hide'});
+                          var elem = MathJax.Hub.getAllJax('latex')[0];
+                          MathJax.Hub.Queue(['Text', elem, latex]);
+                          $('#ev').addClass('importantkey');
+                          $('#ev').removeClass('errorkey');
+                        }
+                        catch{
+                          $('#ev').removeClass('importantkey');
+                          $('#ev').addClass('errorkey');
+                        } 
+
+                        /* Check Error Statement */
+                        try
+                          {
+                            if(displayValue != '')
+                            {
+                              chkResult = parser.eval(displayValue).toString();
+                              $('#ev').addClass('importantkey');
+                              $('#ev').removeClass('errorkey');
+                            }
+                          }
+                          catch (e)
+                          {
+                            $('#ev').removeClass('importantkey');
+                            $('#ev').addClass('errorkey');
+                          }
                       }
                       /* Input */
                       else
                       {
                           displayValue += clickedText;
                           $('#userInput').text(displayValue);
-                          $('#result').text('');
                           $('#status').text("Input");
 
                           if(clickedText == "cross" || clickedText == "dot"){
@@ -347,9 +384,37 @@
                             tempMatrixStrBool = true;
                             $('.matrix').addClass('matrixSelected');
                           }
+
+                          try{
+                            var node = math.parse(displayValue);
+                            var latex = node.toTex({parenthesis: 'keep', implicit: 'hide'});
+                            var elem = MathJax.Hub.getAllJax('latex')[0];
+                            MathJax.Hub.Queue(['Text', elem, latex]);
+                            $('#ev').addClass('importantkey');
+                            $('#ev').removeClass('errorkey');
+                          }
+                          catch{
+                            $('#ev').removeClass('importantkey');
+                            $('#ev').addClass('errorkey');
+                          }
+
+                          /* Check Error Statement */
+                          try
+                          {
+                            if(displayValue != '')
+                            {
+                              chkResult = parser.eval(displayValue).toString();
+                              $('#ev').addClass('importantkey');
+                              $('#ev').removeClass('errorkey');
+                            }
+                          }
+                          catch (e)
+                          {
+                            $('#ev').removeClass('importantkey');
+                            $('#ev').addClass('errorkey');
+                          }
                       }
                   }
-
                   e.preventDefault()
               })
           })
@@ -457,6 +522,35 @@
               if(parenNum == 0){
                 parenIndex = 0;
                 $('#next').removeClass('nextSelected');
+
+                try{
+                  var node = math.parse(displayValue);
+                  var latex = node.toTex({parenthesis: 'keep', implicit: 'hide'});
+                  var elem = MathJax.Hub.getAllJax('latex')[0];
+                  MathJax.Hub.Queue(['Text', elem, latex]);
+                  $('#ev').addClass('importantkey');
+                  $('#ev').removeClass('errorkey');
+                }
+                catch{
+                  $('#ev').removeClass('importantkey');
+                  $('#ev').addClass('errorkey');
+                }
+
+                /* Check Error Statement */
+                try
+                {
+                  if(displayValue != '')
+                  {
+                    chkResult = parser.eval(displayValue).toString();
+                    $('#ev').addClass('importantkey');
+                    $('#ev').removeClass('errorkey');
+                  }
+                }
+                catch (e)
+                {
+                  $('#ev').removeClass('importantkey');
+                  $('#ev').addClass('errorkey');
+                } 
               }
             }
 
@@ -479,6 +573,36 @@
                       displayValue += ")";
                       $('#userInput').text(displayValue);
                       operationValue = "";
+                    }
+
+                    try{
+                      var node = math.parse(displayValue);
+                      var latex = node.toTex({parenthesis: 'keep', implicit: 'hide'});
+                      var elem = MathJax.Hub.getAllJax('latex')[0];
+                      MathJax.Hub.Queue(['Text', elem, latex]);
+                      $('#ev').addClass('importantkey');
+                      $('#ev').removeClass('errorkey');
+                    }
+                    catch{
+                      $('#ev').removeClass('importantkey');
+                      $('#ev').addClass('errorkey');
+                    }
+
+
+                    /* Check Error Statement */
+                    try
+                    {
+                      if(displayValue != '')
+                      {
+                        chkResult = parser.eval(displayValue).toString();
+                        $('#ev').addClass('importantkey');
+                        $('#ev').removeClass('errorkey');
+                      }
+                    }
+                    catch (e)
+                    {
+                      $('#ev').removeClass('importantkey');
+                      $('#ev').addClass('errorkey');
                     }
                   }
                 }
@@ -517,7 +641,6 @@
                 displayValue += printValue;
                 $('#next').addClass('nextSelected');
                 $('#userInput').text(displayValue);
-                $('#result').text('');
                 $('#status').text("Input");
               }
               else{
@@ -562,7 +685,6 @@
                 displayValue += printValue;
                 $('#next').addClass('nextSelected');
                 $('#userInput').text(displayValue);
-                $('#result').text('');
                 $('#status').text("Input");
               }
               else{
@@ -591,11 +713,9 @@
          </div>
     </div>
     <div id="calculator">
-      <div id="userInput" class="hintModal">
-          <div class="hintHide thisIsHint">
-              사용자의 입력이 표시됩니다.
-          </div>
-      </div>
+      <textarea id="userInput"></textarea>
+      <!--<div id="userInput" class="hintModal">
+      </div>-->
       <div id="status" class="hintModal">
           <div class="hintHide thisIsHint">
               현재 계산기 상태를 표시합니다.<br>
@@ -606,6 +726,7 @@
               입력된 수식의 결과를 표시합니다.
           </div>
       </div>
+      
       <div id="operation">
       <table id="operationRowFirst">
         <tr>
@@ -708,7 +829,7 @@
       </table>
       <table id="operationRowThird">
         <tr>
-          <td class="operationKey hintModal">sqrt
+          <td class="operationKey hintModal">√
               <div class="hintHide thisIsHint">
                   표시된 값의 제곱근을 계산합니다.
                   <p>
@@ -857,7 +978,7 @@
             <td class="key">0</td>
             <td class="key">%</td>
             <td class="key semimportantkey">=</td>
-            <td class="key importantkey">EV</td>
+            <td id="ev" class="key importantkey">EV</td>
           </tr>
         </table>
       </div>
