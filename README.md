@@ -4,8 +4,6 @@
 
 **웹 기반 GUI 공학용 계산기**
 
-****
-
 **더 자세한 내용은 report.pdf 파일을 확인해주세요**
 
 <br>
@@ -23,6 +21,7 @@
 <br>
 
 - **사용한 언어 및 도구, 라이브러리**
+  
   + HTML, CSS, Javascript
   
   + math.js
@@ -36,7 +35,13 @@
 
 <br>
 
-- **시연 영상**<br>
+- **실행 URL**
+
+  + https://hongchan2.github.io/calc/1/
+  
+    
+  
+- **시연 영상**
 
   + https://youtu.be/GxthLSBSnFQ
   
